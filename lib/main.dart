@@ -20,7 +20,7 @@ class _PlayerSetupScreenState extends State<PlayerSetupScreen> {
   @override
   void initState() {
     super.initState();
-    _controllers = List.generate(5, (_) => TextEditingController(text: 'name'));
+    _controllers = List.generate(5, (_) => TextEditingController(text: null));
   }
 
   @override
@@ -57,12 +57,19 @@ class _PlayerSetupScreenState extends State<PlayerSetupScreen> {
         ),
       ),
       body: Padding(
-        padding: const EdgeInsets.all(32.0),
+        padding: const EdgeInsets.only(left: 32.0, right: 32.0, bottom: 32.0),
         child: Form(
           key: _formKey,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              Center(child: Text('brought to you by', style: TextStyle(fontSize: 16))),
+              Center(
+                child: Text('Johnny Utah', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+              ),
+              Center(child: Text('(as seen on Drinkers\' Den 2024)', style: TextStyle(fontSize: 16))),
+
+              const SizedBox(height: 32),
               const Text('Select number of players:', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
               DropdownButton<int>(
                 value: _playerCount,
@@ -98,6 +105,11 @@ class _PlayerSetupScreenState extends State<PlayerSetupScreen> {
                   width: double.infinity,
                   child: ElevatedButton(onPressed: _allNamesFilled() ? _onPlayPressed : null, child: const Text('Play')),
                 ),
+              ),
+              const SizedBox(height: 16),
+              Align(
+                alignment: Alignment.topRight,
+                child: Text('created by Jackson Wiebe', style: TextStyle(fontSize: 16)),
               ),
             ],
           ),

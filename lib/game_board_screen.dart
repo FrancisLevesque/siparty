@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'end_of_game_scren.dart';
 import 'package:just_audio/just_audio.dart';
@@ -157,6 +155,8 @@ class _GameBoardScreenState extends State<GameBoardScreen> {
     setState(() {
       if (correctAnswer) {
         players[playerIndex].score += tile.value;
+      } else {
+        players[playerIndex].score -= tile.value;
       }
       tile.awarded = true;
       selectedRow = null;
@@ -293,7 +293,11 @@ class _GameBoardScreenState extends State<GameBoardScreen> {
                   child: Container(
                     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                     decoration: BoxDecoration(
-                      color: correctAnswer ? Colors.green[200] : Colors.grey[200],
+                      color: correctAnswer
+                          ? Colors.green[200]
+                          : player.score < 0
+                          ? Colors.red[200]
+                          : Colors.grey[200],
                       borderRadius: BorderRadius.circular(8),
                       border: Border.all(color: correctAnswer ? Colors.green : Colors.grey, width: 2),
                     ),
