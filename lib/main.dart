@@ -20,7 +20,7 @@ class _PlayerSetupScreenState extends State<PlayerSetupScreen> {
   @override
   void initState() {
     super.initState();
-    _controllers = List.generate(5, (_) => TextEditingController());
+    _controllers = List.generate(5, (_) => TextEditingController(text: 'name'));
   }
 
   @override
@@ -40,15 +40,8 @@ class _PlayerSetupScreenState extends State<PlayerSetupScreen> {
 
   void _onPlayPressed() {
     if (_allNamesFilled()) {
-      final names = List<String>.generate(
-        _playerCount,
-        (i) => _controllers[i].text.trim(),
-      );
-      Navigator.of(context).push(
-        MaterialPageRoute(
-          builder: (context) => IntroVideoScreen(playerNames: names),
-        ),
-      );
+      final names = List<String>.generate(_playerCount, (i) => _controllers[i].text.trim());
+      Navigator.of(context).push(MaterialPageRoute(builder: (context) => IntroVideoScreen(playerNames: names)));
     }
   }
 
@@ -60,11 +53,7 @@ class _PlayerSetupScreenState extends State<PlayerSetupScreen> {
       appBar: AppBar(
         title: const Text(
           'Siparty Setup',
-          style: TextStyle(
-            fontFamily: 'Gyparody',
-            fontSize: 50,
-            color: darkBlue,
-          ),
+          style: TextStyle(fontFamily: 'Gyparody', fontSize: 50, color: darkBlue),
         ),
       ),
       body: Padding(
@@ -74,18 +63,10 @@ class _PlayerSetupScreenState extends State<PlayerSetupScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(
-                'Select number of players:',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-              ),
+              const Text('Select number of players:', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
               DropdownButton<int>(
                 value: _playerCount,
-                items: [3, 4, 5]
-                    .map(
-                      (n) =>
-                          DropdownMenuItem(value: n, child: Text(n.toString())),
-                    )
-                    .toList(),
+                items: [3, 4, 5].map((n) => DropdownMenuItem(value: n, child: Text(n.toString()))).toList(),
                 onChanged: (val) {
                   if (val != null) {
                     setState(() {
@@ -97,24 +78,16 @@ class _PlayerSetupScreenState extends State<PlayerSetupScreen> {
               const SizedBox(height: 24),
               Padding(
                 padding: const EdgeInsets.only(bottom: 16.0),
-                child: const Text(
-                  'Enter player names:',
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                ),
+                child: const Text('Enter player names:', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
               ),
               ...List.generate(_playerCount, (i) {
                 return Padding(
                   padding: const EdgeInsets.only(bottom: 8.0),
                   child: TextFormField(
                     controller: _controllers[i],
-                    decoration: InputDecoration(
-                      labelText: 'Player ${i + 1} Name',
-                      border: const OutlineInputBorder(),
-                    ),
+                    decoration: InputDecoration(labelText: 'Player ${i + 1} Name', border: const OutlineInputBorder()),
                     textInputAction: TextInputAction.next,
-                    validator: (val) => (val == null || val.trim().isEmpty)
-                        ? 'Please enter a name'
-                        : null,
+                    validator: (val) => (val == null || val.trim().isEmpty) ? 'Please enter a name' : null,
                     onChanged: (_) => setState(() {}),
                   ),
                 );
@@ -123,10 +96,7 @@ class _PlayerSetupScreenState extends State<PlayerSetupScreen> {
               Center(
                 child: SizedBox(
                   width: double.infinity,
-                  child: ElevatedButton(
-                    onPressed: _allNamesFilled() ? _onPlayPressed : null,
-                    child: const Text('Play'),
-                  ),
+                  child: ElevatedButton(onPressed: _allNamesFilled() ? _onPlayPressed : null, child: const Text('Play')),
                 ),
               ),
             ],
