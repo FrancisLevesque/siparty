@@ -49,26 +49,26 @@ class _GameBoardScreenState extends State<GameBoardScreen> {
     boardData = [
       [
         SipartyTile(answer: 'Gin and Tonic', question: 'It is commonly referred to as a G and T.', value: 100),
-        SipartyTile(answer: 'Rum and Coke or Cuba libre', question: 'This cocktail originated in the early 20th century in Cuba, after the country won its independence.', value: 200),
-        SipartyTile(answer: 'Vodka Cran', question: 'Also called a Cape Codder. Some recipes call for squeezing a lime wedge over the glass.', value: 300),
-        SipartyTile(answer: 'Sexy Squid or Kraken and Fireball', question: 'Invented in Calgary while playing Mario Party. Composed of an amber liquor and a cinnamon liqueur.', value: 400),
+        SipartyTile(answer: 'Scotch and Soda', question: 'Rumour has it this drink was invented when an English stage actor entered a New York bar and requested a “Scotch Highball.”', value: 200),
+        SipartyTile(answer: 'Rum and Coke or Cuba libre', question: 'This cocktail originated in the early 20th century in Cuba, after the country won its independence.', value: 300),
+        SipartyTile(answer: 'Vodka Cran', question: 'Also called a Cape Codder. Some recipes call for squeezing a lime wedge over the glass.', value: 400),
       ],
       [
         SipartyTile(answer: 'Long Island iced tea', question: 'This drink was invented on a Long Island, but it\'s unclear if it was the island in Tennessee or in New York.', value: 100),
-        SipartyTile(answer: 'Margarita', question: 'Spanish for "daisy", this drink is the world\'s most popular tequila-based cocktail.', value: 200),
-        SipartyTile(answer: 'Mojito', question: 'Translated as "burning water", a crude form of rum made from sugar cane was the foundation for this drink.', value: 300),
-        SipartyTile(answer: 'xxx', question: 'xxx', value: 400),
+        SipartyTile(answer: 'Moscow Mule', question: 'Also called a "vodka buck", this drink is popularly served in a copper mug.', value: 200),
+        SipartyTile(answer: 'Margarita', question: 'Spanish for "daisy", this drink is the world\'s most popular tequila-based cocktail.', value: 300),
+        SipartyTile(answer: 'Piña Colada', question: 'Named for the strained pineapple juice that is one of the main ingredients of this drink.', value: 400),
       ],
       [
-        SipartyTile(answer: 'Coca-Cola or Coke', question: 'A popular drink invented in Atlanta, Georgia.', value: 100),
-        SipartyTile(answer: 'Cranberry Juice', question: 'A 2008 study found that this drink might help prevent UTIs. A 2012 review has since refuted these findings.', value: 200),
-        SipartyTile(answer: 'Tonic', question: 'This drink was originally used as a medicine to help prevent malaria.', value: 300),
-        SipartyTile(answer: 'Water', question: 'This liquid is transparent, tasteless, odorless, and nearly colorless.', value: 400),
+        SipartyTile(answer: 'Ginger Ale', question: 'Touted for its soothing effect on upset stomachs, this is a popular drink of choice for airline passengers.', value: 100),
+        SipartyTile(answer: 'Coca-Cola or Coke', question: 'A popular drink invented in Atlanta, Georgia.', value: 200),
+        SipartyTile(answer: 'Club Soda', question: 'The recipe was originally described in a pamphlet from 1772 called Directions for Impregnating Water with Fixed Air.', value: 300),
+        SipartyTile(answer: 'Cranberry Juice', question: 'A 2008 study found that this drink might help prevent UTIs. A 2012 review has since refuted these findings.', value: 400),
       ],
       [
         SipartyTile(answer: 'Tequila', question: 'A distilled beverage made from the blue agave plant.', value: 100),
         SipartyTile(answer: 'Vodka or водка', question: 'Composed mainly of water and ethanol, but sometimes packaged with a variety of flavourings.', value: 200),
-        SipartyTile(answer: 'Rum or Screech', question: 'Part of the culture of most islands of the West Indies as well as the Maritime provinces in Canada.', value: 300),
+        SipartyTile(answer: 'Jägermeister', question: 'Developed in 1934, the 56 herbs and spices this drink is made with have never changed.', value: 300),
         SipartyTile(answer: 'Gin', question: 'Originally a medicinal liquor made by monks and alchemists across Europe.', value: 400),
       ],
     ];
@@ -151,6 +151,14 @@ class _GameBoardScreenState extends State<GameBoardScreen> {
     if (selectedRow == null || selectedCol == null) return;
     final tile = boardData[selectedRow!][selectedCol!];
     if (tile.awarded) return;
+    if (!tile.answered) {
+      audio.setAsset('assets/wrong.mp3');
+      audio.play();
+      setState(() {
+        players[playerIndex].score -= tile.value;
+      });
+      return;
+    }
 
     setState(() {
       if (correctAnswer) {
@@ -158,6 +166,32 @@ class _GameBoardScreenState extends State<GameBoardScreen> {
       } else {
         players[playerIndex].score -= tile.value;
       }
+      tile.awarded = true;
+      selectedRow = null;
+      selectedCol = null;
+      correctAnswer = false; // resets colouring on player points section
+    });
+
+    // After awarding, check if all tiles are awarded
+    bool allAwarded = boardData.expand((col) => col).every((tile) => tile.awarded);
+    if (allAwarded) {
+      // Navigate to end game screen
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(
+          builder: (context) => EndOfGameScreen(
+            players: players.map((p) => Player(name: p.name, score: p.score)).toList(),
+          ),
+        ),
+      );
+    }
+  }
+
+  void _everyoneWasWrong() {
+    if (selectedRow == null || selectedCol == null) return;
+    final tile = boardData[selectedRow!][selectedCol!];
+    if (tile.awarded) return;
+
+    setState(() {
       tile.awarded = true;
       selectedRow = null;
       selectedCol = null;
@@ -202,6 +236,9 @@ class _GameBoardScreenState extends State<GameBoardScreen> {
                     child: GestureDetector(
                       onTap: () {
                         _revealCatagory();
+                      },
+                      onLongPress: () {
+                        _everyoneWasWrong();
                       },
                       child: Container(
                         padding: const EdgeInsets.all(8),
@@ -287,9 +324,8 @@ class _GameBoardScreenState extends State<GameBoardScreen> {
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: List.generate(players.length, (i) {
                 final player = players[i];
-                final canAward = selectedRow != null && selectedCol != null && boardData[selectedRow!][selectedCol!].answered && !boardData[selectedRow!][selectedCol!].awarded;
                 return GestureDetector(
-                  onTap: canAward ? () => _awardPointsToPlayer(i) : null,
+                  onTap: () => _awardPointsToPlayer(i),
                   child: Container(
                     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                     decoration: BoxDecoration(
